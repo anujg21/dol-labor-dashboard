@@ -216,8 +216,8 @@ st.markdown("---")
 # Tabs
 # ---------------------------------------------------------------------------
 
-tab_data, tab_analytics, tab_employers = st.tabs(
-    ["📋 Data Table", "📈 Analytics", "🏆 Top Employers"]
+tab_data, tab_analytics, tab_employers, tab_about = st.tabs(
+    ["📋 Data Table", "📈 Analytics", "🏆 Top Employers", "ℹ️ About"]
 )
 
 DISPLAY_COLS = [
@@ -315,3 +315,85 @@ with tab_employers:
     )
     top.columns = ["Employer", "Cases", "Median Annual Wage", "States (sample)"]
     st.dataframe(top, use_container_width=True, height=520)
+
+# ── Tab 4: About ──────────────────────────────────────────────────────────────
+
+with tab_about:
+    st.header("About This Dashboard")
+
+    st.markdown("""
+### Why this exists
+
+Most job seekers negotiate salary blind. They rely on Glassdoor estimates or
+whatever the recruiter says — but there's a better source hiding in plain sight.
+
+U.S. law requires employers to publicly disclose the **exact wage** they intend
+to pay every H-1B and PERM applicant before filing. The Department of Labor
+publishes this data every quarter. This dashboard makes that data searchable
+and useful for anyone in the IT/Software industry.
+
+---
+
+### What you can do here
+
+| Use case | How |
+|----------|-----|
+| **Know the salary before the interview** | Search the employer name + job title → see the actual wage filed with the government |
+| **Find companies actively hiring right now** | Recent LCA filings (last 90 days) = active open roles |
+| **Know if a company sponsors green cards** | Switch to PERM tab, search the employer — PERM filings = green card sponsorship |
+| **Compare salaries across states** | Filter by job title, then compare states in the Analytics tab |
+| **Spot remote-friendly employers** | Toggle "Remote jobs only" on the H-1B dataset |
+| **Understand seniority level** | Wage Level I = junior → IV = senior/lead |
+| **Research before negotiating** | Use median/avg wage for your role + state as your floor |
+
+---
+
+### How to use the filters
+
+- **Search job title** — type any keyword: `architect`, `devops`, `machine learning`
+- **Employer name** — type a company name from a job posting to see what they actually pay
+- **Worksite State** — compare the same role across different states
+- **Annual Wage slider** — set a salary floor to filter out junior roles
+- **Case Status** — filter to `Certified` cases only for the cleanest data
+- **Remote toggle** — H-1B dataset only; detects remote worksites from filing address
+
+---
+
+### Understanding the data
+
+**H-1B (LCA)** — Labor Condition Application. Filed before every H-1B petition.
+Shows the employer's *committed* wage — what they promised to pay. This is the
+most reliable salary signal in the dataset.
+
+**PERM (Green Card)** — Permanent Labor Certification. Filed when an employer
+wants to sponsor an employee for a green card. If a company has PERM filings
+for a role, they are willing to sponsor.
+
+**Wage Levels explained:**
+- **Level I** — Entry-level, limited experience
+- **Level II** — Experienced, requires some judgement
+- **Level III** — Fully competent, independent work
+- **Level IV** — Expert, supervisory or unique skills
+
+---
+
+### Data source & freshness
+
+Data comes from the [OFLC Performance Data](https://www.dol.gov/agencies/eta/foreign-labor/performance)
+page published by the U.S. Department of Labor. This dashboard is filtered to
+**IT/Software occupations only** (SOC 15-xxxx Computer & Mathematical, plus
+SOC 11-3021 IT Managers).
+
+The dataset updates automatically every quarter via GitHub Actions. The current
+data quarter is shown in the banner at the top of each tab.
+
+---
+
+### Inspiration
+
+This dashboard was inspired by an
+[Instagram reel](https://www.instagram.com/reel/DWb1LvQk7JX/) highlighting
+how public DOL data can be used for salary research.
+
+**Source code:** [github.com/anujg21/dol-labor-dashboard](https://github.com/anujg21/dol-labor-dashboard)
+""")
