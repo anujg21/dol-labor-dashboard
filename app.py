@@ -393,7 +393,7 @@ data quarter is shown in the banner at the top of each tab.
 
 This dashboard was inspired by an
 [Instagram reel](https://www.instagram.com/reel/DWb1LvQk7JX/) highlighting
-how public DOL data can be used for salary research.
+how public DOL data can be used for H1B job research.
 
 **Source code:** [github.com/anujg21/dol-labor-dashboard](https://github.com/anujg21/dol-labor-dashboard)
 """)
