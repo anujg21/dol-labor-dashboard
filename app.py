@@ -216,8 +216,8 @@ st.markdown("---")
 # Tabs
 # ---------------------------------------------------------------------------
 
-tab_data, tab_analytics, tab_employers, tab_about = st.tabs(
-    ["📋 Data Table", "📈 Analytics", "🏆 Top Employers", "ℹ️ About"]
+tab_about, tab_data, tab_analytics, tab_employers = st.tabs(
+    ["ℹ️ About", "📋 Data Table", "📈 Analytics", "🏆 Top Employers"]
 )
 
 DISPLAY_COLS = [
