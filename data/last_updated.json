@@ -1,0 +1,17 @@
+{
+  "last_updated_utc": "2026-05-28T19:35:10.365837+00:00",
+  "lca": {
+    "fiscal_year": "2026",
+    "quarter": "Q2",
+    "source_file": "LCA_Dislclosure_Data_FY2026_Q2.xlsx",
+    "rows": 134761,
+    "remote_rows": 749
+  },
+  "perm": {
+    "fiscal_year": "2026",
+    "quarter": "Q2",
+    "source_file": "PERM_Disclosure_Data_FY2026_Q2.xlsx",
+    "rows": 24179,
+    "remote_rows": 0
+  }
+}

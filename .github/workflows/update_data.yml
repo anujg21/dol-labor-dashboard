@@ -1,0 +1,139 @@
+name: Quarterly Data Update
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runs on the 5th of every quarter-start month (Jan, Apr, Jul, Oct).
+# DOL typically publishes new quarterly data 4-6 weeks after quarter-end,
+# so a monthly retry on the 5th catches the release reliably.
+#
+# Also triggered manually via workflow_dispatch for ad-hoc refreshes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  schedule:
+    - cron: "0 8 5 1,4,7,10 *"   # 08:00 UTC on the 5th of Jan/Apr/Jul/Oct
+  workflow_dispatch:               # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write                  # Needed to commit updated parquet files
+
+jobs:
+  update-data:
+    name: Download & preprocess latest DOL data
+    runs-on: ubuntu-latest
+    timeout-minutes: 90            # Large Excel files can take a while
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ── 2. Python setup ───────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 3. Check what's currently live on DOL ─────────────────────────────
+      - name: Check latest available DOL files
+        id: check
+        run: |
+          python scripts/fetch_dol_data.py --list-only > /tmp/dol_meta.json
+          cat /tmp/dol_meta.json
+
+          # Extract the latest FY+Q from the metadata
+          LCA_FY=$(python -c "import json; d=json.load(open('/tmp/dol_meta.json')); print(d.get('lca',{}).get('fy',''))")
+          LCA_Q=$(python -c  "import json; d=json.load(open('/tmp/dol_meta.json')); print(d.get('lca',{}).get('quarter',''))")
+          echo "dol_fy=$LCA_FY"     >> "$GITHUB_OUTPUT"
+          echo "dol_quarter=$LCA_Q" >> "$GITHUB_OUTPUT"
+
+      # ── 4. Compare with what we already have ──────────────────────────────
+      - name: Check if update is needed
+        id: diff
+        run: |
+          CURRENT_FY=""
+          CURRENT_Q=""
+          if [ -f data/last_updated.json ]; then
+            CURRENT_FY=$(python -c "import json; d=json.load(open('data/last_updated.json')); print(d.get('lca',{}).get('fiscal_year',''))")
+            CURRENT_Q=$(python  -c "import json; d=json.load(open('data/last_updated.json')); print(d.get('lca',{}).get('quarter',''))")
+          fi
+
+          DOL_FY="${{ steps.check.outputs.dol_fy }}"
+          DOL_Q="${{ steps.check.outputs.dol_quarter }}"
+
+          echo "Current data:  FY${CURRENT_FY} ${CURRENT_Q}"
+          echo "DOL available: FY${DOL_FY} ${DOL_Q}"
+
+          if [ "$DOL_FY/$DOL_Q" != "$CURRENT_FY/$CURRENT_Q" ] && [ -n "$DOL_FY" ]; then
+            echo "needs_update=true"  >> "$GITHUB_OUTPUT"
+            echo "new_label=FY${DOL_FY} ${DOL_Q}" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "No new data available — skipping."
+          fi
+
+      # ── 5. Download raw Excel files (only if update needed) ───────────────
+      - name: Download latest DOL Excel files
+        if: steps.diff.outputs.needs_update == 'true'
+        run: |
+          mkdir -p data/raw
+          python scripts/fetch_dol_data.py --dest data/raw
+
+      # ── 6. Preprocess to Parquet ──────────────────────────────────────────
+      - name: Preprocess to Parquet
+        if: steps.diff.outputs.needs_update == 'true'
+        run: python scripts/preprocess.py --verbose
+
+      # ── 7. Remove raw Excel (keep repo lean) ──────────────────────────────
+      - name: Clean up raw Excel files
+        if: steps.diff.outputs.needs_update == 'true'
+        run: rm -rf data/raw
+
+      # ── 8. Update CHANGELOG ───────────────────────────────────────────────
+      - name: Update CHANGELOG
+        if: steps.diff.outputs.needs_update == 'true'
+        run: |
+          NEW_LABEL="${{ steps.diff.outputs.new_label }}"
+          TODAY=$(date -u +"%Y-%m-%d")
+          LCA_ROWS=$(python -c "import json; d=json.load(open('data/last_updated.json')); print(d['lca']['rows'])")
+          PERM_ROWS=$(python -c "import json; d=json.load(open('data/last_updated.json')); print(d['perm']['rows'])")
+
+          # Prepend entry to CHANGELOG
+          ENTRY="## ${TODAY} — ${NEW_LABEL}\n- LCA IT rows: ${LCA_ROWS}\n- PERM IT rows: ${PERM_ROWS}\n"
+          TMPFILE=$(mktemp)
+          echo -e "$ENTRY" > "$TMPFILE"
+          tail -n +1 CHANGELOG.md >> "$TMPFILE" 2>/dev/null || true
+          mv "$TMPFILE" CHANGELOG.md
+
+      # ── 9. Update README badge ────────────────────────────────────────────
+      - name: Update README data-freshness line
+        if: steps.diff.outputs.needs_update == 'true'
+        run: |
+          NEW_LABEL="${{ steps.diff.outputs.new_label }}"
+          TODAY=$(date -u +"%Y-%m-%d")
+          # Replace the <!-- DATA_BADGE --> sentinel line in README
+          sed -i "s|<!-- DATA_BADGE -->.*|<!-- DATA_BADGE --> **Data:** ${NEW_LABEL} \&nbsp;\| **Updated:** ${TODAY}|" README.md
+
+      # ── 10. Commit & push ─────────────────────────────────────────────────
+      - name: Commit and push updated data
+        if: steps.diff.outputs.needs_update == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/lca_it.parquet data/perm_it.parquet data/last_updated.json CHANGELOG.md README.md
+          git commit -m "data: update to ${{ steps.diff.outputs.new_label }} [automated]"
+          git push
+
+      # ── 11. Summary ───────────────────────────────────────────────────────
+      - name: Job summary
+        run: |
+          if [ "${{ steps.diff.outputs.needs_update }}" == "true" ]; then
+            echo "### Data updated to ${{ steps.diff.outputs.new_label }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### No new data — already up to date." >> "$GITHUB_STEP_SUMMARY"
+          fi
