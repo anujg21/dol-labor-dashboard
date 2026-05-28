@@ -10,7 +10,7 @@ disclosure data for the **IT/Software industry** — covering H-1B (LCA) and PER
 
 ## Live Dashboard
 
-> _Link will appear here once deployed to Streamlit Community Cloud._
+**[https://dol-labor-dashboard-szpjdvwd4hp8qevqnv3ebe.streamlit.app](https://dol-labor-dashboard-szpjdvwd4hp8qevqnv3ebe.streamlit.app)**
 
 ---
 
