@@ -113,6 +113,12 @@ If you need to force an update before the scheduled cron:
 
 ---
 
+## Inspiration
+
+This project was inspired by an Instagram reel: [https://www.instagram.com/reel/DWb1LvQk7JX/](https://www.instagram.com/reel/DWb1LvQk7JX/)
+
+---
+
 ## License
 
 Data is sourced from the U.S. Department of Labor (public domain).
