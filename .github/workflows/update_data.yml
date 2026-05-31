@@ -5,13 +5,24 @@ name: Quarterly Data Update
 # DOL typically publishes new quarterly data 4-6 weeks after quarter-end,
 # so a monthly retry on the 5th catches the release reliably.
 #
-# Also triggered manually via workflow_dispatch for ad-hoc refreshes.
+# Manual trigger (workflow_dispatch) is restricted to repo collaborators
+# with write access — public visitors cannot trigger this.
+#
+# Cost estimate: ~90 min per run × 4 runs/year = ~360 min/year
+# GitHub free tier: 2,000 min/month — well within limits.
+# Concurrency lock below prevents accidental parallel runs.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
   schedule:
     - cron: "0 8 5 1,4,7,10 *"   # 08:00 UTC on the 5th of Jan/Apr/Jul/Oct
-  workflow_dispatch:               # Allow manual trigger from GitHub UI
+  workflow_dispatch:               # Manual trigger — repo collaborators only
+
+# Prevent parallel runs. If a run is already in progress and a new one is
+# triggered, the new one waits rather than running simultaneously.
+concurrency:
+  group: quarterly-data-update
+  cancel-in-progress: false        # Let the running job finish; don't cancel it
 
 permissions:
   contents: write                  # Needed to commit updated parquet files
@@ -20,7 +31,7 @@ jobs:
   update-data:
     name: Download & preprocess latest DOL data
     runs-on: ubuntu-latest
-    timeout-minutes: 90            # Large Excel files can take a while
+    timeout-minutes: 90            # Hard cap — kills the job if something hangs
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────
