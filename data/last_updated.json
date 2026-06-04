@@ -1,11 +1,11 @@
 {
-  "last_updated_utc": "2026-05-28T19:35:10.365837+00:00",
+  "last_updated_utc": "2026-06-04T22:46:17.314805+00:00",
   "lca": {
     "fiscal_year": "2026",
     "quarter": "Q2",
     "source_file": "LCA_Dislclosure_Data_FY2026_Q2.xlsx",
     "rows": 134761,
-    "remote_rows": 749
+    "remote_rows": 752
   },
   "perm": {
     "fiscal_year": "2026",

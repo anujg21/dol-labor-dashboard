@@ -74,6 +74,7 @@ LCA_COLUMNS: dict[str, str] = {
     "CASE_NUMBER":           "Case #",
     "CASE_STATUS":           "Status",
     "VISA_CLASS":            "Visa",
+    "RECEIVED_DATE":         "Received Date",
     "DECISION_DATE":         "Decision Date",
     "EMPLOYER_NAME":         "Employer",
     "EMPLOYER_STATE":        "Employer State",
@@ -87,11 +88,13 @@ LCA_COLUMNS: dict[str, str] = {
     "PREVAILING_WAGE":       "Prevailing Wage",
     "PW_WAGE_LEVEL":         "Wage Level",
     "FULL_TIME_POSITION":    "Full Time",
+    "NEW_EMPLOYMENT":        "New Employment",   # 1 = fresh hire, 0 = renewal/transfer
 }
 
 PERM_COLUMNS: dict[str, str] = {
     "CASE_NUMBER":              "Case #",
     "CASE_STATUS":              "Status",
+    "RECEIVED_DATE":            "Received Date",
     "DECISION_DATE":            "Decision Date",
     "EMP_BUSINESS_NAME":        "Employer",
     "EMP_STATE":                "Employer State",
