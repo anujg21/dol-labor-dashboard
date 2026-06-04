@@ -553,7 +553,7 @@ elif mode == "sponsorship":
                 Certified     =("Status",         lambda x: (x == "Certified").sum()),
                 Median_Wage   =("Annual Wage",    "median"),
                 Top_Roles     =("SOC Title",      lambda x: x.value_counts().index[0]
-                                if len(x) else "—"),
+                                if len(x.value_counts()) else "—"),
                 States        =("Worksite State", lambda x: ", ".join(
                                 sorted(x.dropna().unique()[:4]))),
             )
