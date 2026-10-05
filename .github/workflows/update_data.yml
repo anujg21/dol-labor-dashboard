@@ -1,7 +1,7 @@
 name: Quarterly Data Update
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Runs on the 5th of every month. DOL publishes new quarterly data at an
+# Runs on the 20th of every month. DOL publishes new quarterly data at an
 # irregular lag after quarter-end, so a monthly check catches it within a month.
 # Months with no new quarter exit early after the cheap "--list-only" check.
 #
@@ -16,7 +16,7 @@ name: Quarterly Data Update
 
 on:
   schedule:
-    - cron: "0 8 5 * *"            # 08:00 UTC on the 5th of every month
+    - cron: "0 8 20 * *"           # 08:00 UTC on the 20th of every month
   workflow_dispatch:               # Manual trigger — repo collaborators only
 
 # Prevent parallel runs. If a run is already in progress and a new one is
