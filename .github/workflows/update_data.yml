@@ -1,21 +1,22 @@
 name: Quarterly Data Update
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Runs on the 5th of every quarter-start month (Jan, Apr, Jul, Oct).
-# DOL typically publishes new quarterly data 4-6 weeks after quarter-end,
-# so a monthly retry on the 5th catches the release reliably.
+# Runs on the 5th of every month. DOL publishes new quarterly data at an
+# irregular lag after quarter-end, so a monthly check catches it within a month.
+# Months with no new quarter exit early after the cheap "--list-only" check.
 #
 # Manual trigger (workflow_dispatch) is restricted to repo collaborators
 # with write access — public visitors cannot trigger this.
 #
-# Cost estimate: ~90 min per run × 4 runs/year = ~360 min/year
+# Cost estimate: ~90 min per run × 4 real updates/year, plus ~1 min for each
+# no-op check (8/year).
 # GitHub free tier: 2,000 min/month — well within limits.
 # Concurrency lock below prevents accidental parallel runs.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
   schedule:
-    - cron: "0 8 5 1,4,7,10 *"   # 08:00 UTC on the 5th of Jan/Apr/Jul/Oct
+    - cron: "0 8 5 * *"            # 08:00 UTC on the 5th of every month
   workflow_dispatch:               # Manual trigger — repo collaborators only
 
 # Prevent parallel runs. If a run is already in progress and a new one is

@@ -35,7 +35,7 @@ Mathematical + SOC 11-3021 IT Managers).
 - Remote job detection on LCA data (worksite address keyword analysis)
 - Wage distribution, top employers, case-status breakdown charts
 - CSV export of any filtered view
-- Auto-refreshes each quarter via GitHub Actions
+- Checks for new DOL quarterly data monthly via GitHub Actions
 
 ---
 
@@ -80,13 +80,13 @@ GitHub repo
 │   ├── perm_it.parquet            # Pre-processed PERM data (~1 MB)
 │   └── last_updated.json          # Quarter & timestamp metadata
 └── .github/workflows/
-    └── update_data.yml            # Quarterly cron pipeline
+    └── update_data.yml            # Monthly-check cron pipeline
 ```
 
 **Automated pipeline (GitHub Actions):**
 
 ```
-Cron (quarterly)
+Cron (monthly check)
   → check DOL page for new quarter files
   → skip if already current
   → download Excel files
