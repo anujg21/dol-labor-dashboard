@@ -305,6 +305,11 @@ elif mode == "explore":
     if status_sel:
         df = df[df["Status"].isin(status_sel)]
 
+    # Newest first: decision date, then received date as tiebreaker
+    sort_cols = [c for c in ("Decision Date", "Received Date") if c in df.columns]
+    if sort_cols:
+        df = df.sort_values(sort_cols, ascending=False, na_position="last")
+
     # KPIs
     k1, k2, k3, k4 = st.columns(4)
     k1.metric("Cases (filtered)", f"{len(df):,}")
