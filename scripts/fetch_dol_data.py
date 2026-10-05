@@ -60,8 +60,7 @@ def _setup_logging(level: int = logging.INFO) -> None:
 
 def _fetch_page(url: str) -> str:
     """Fetch a URL and return the response text."""
-    headers = {"User-Agent": "dol-labor-dashboard/1.0 (github.com/anujg21/dol-labor-dashboard)"}
-    resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+    resp = requests.get(url, timeout=REQUEST_TIMEOUT)
     resp.raise_for_status()
     return resp.text
 
@@ -106,11 +105,12 @@ def _find_latest_links(html: str) -> dict[str, dict]:
 
 def _download_file(url: str, dest_path: Path) -> None:
     """Stream-download a file to *dest_path*, showing progress."""
-    headers = {"User-Agent": "dol-labor-dashboard/1.0"}
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # No custom User-Agent: dol.gov's CDN returns 403 for custom and browser-style
+    # UAs on /media files but accepts the default python-requests one.
     logger.info("Downloading %s -> %s", url, dest_path)
-    with requests.get(url, headers=headers, stream=True, timeout=REQUEST_TIMEOUT) as resp:
+    with requests.get(url, stream=True, timeout=REQUEST_TIMEOUT) as resp:
         resp.raise_for_status()
         total = int(resp.headers.get("content-length", 0))
         downloaded = 0
