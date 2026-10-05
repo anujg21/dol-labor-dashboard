@@ -1,3 +1,7 @@
+## 2026-10-05 — FY2026 Q3
+- LCA IT rows: 267285
+- PERM IT rows: 44208
+
 # Data Changelog
 
 All quarterly data refreshes are recorded here automatically by GitHub Actions.

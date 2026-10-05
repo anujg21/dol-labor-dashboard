@@ -4,7 +4,7 @@ An interactive Streamlit dashboard exploring U.S. Department of Labor quarterly
 disclosure data for the **IT/Software industry** — covering H-1B (LCA) and PERM
 (Green Card) filings.
 
-<!-- DATA_BADGE --> **Data:** FY2026 Q2 &nbsp;| **Updated:** 2026-05-28
+<!-- DATA_BADGE --> **Data:** FY2026 Q3 &nbsp;| **Updated:** 2026-10-05
 
 ---
 
